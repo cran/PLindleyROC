@@ -53,131 +53,34 @@ qPLD(c(.9971,0.5,0.3),alpha=3,beta=2)
 ``` r
 library(PLindleyROC)
 rPLD(10,alpha=3,beta=2)
-#>  [1] 0.3856591 0.7168456 0.8070020 0.6398473 0.9780382 0.5930996 1.6253265
-#>  [8] 1.1524593 0.9633790 0.9465301
+#>  [1] 0.6572033 0.7754573 0.6550335 0.9569136 1.1122406 0.6148588 0.8642285
+#>  [8] 0.4055046 0.6852735 0.9968817
 ```
 
 ``` r
 library(PLindleyROC)
-plAUC(alpha1=2,beta1=5,alpha2=6,beta2=1)
-#> [1] 0.9688111
+r.pl_auc(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),true_param=c(alpha1=1,beta1=1,alpha2=1,beta2=1),method=c("TRUE"))
+#> [1] 0.5
 ```
 
 ``` r
 library(PLindleyROC)
-plJ(alpha1=2,beta1=5,alpha2=6,beta2=1,init=0)
-#> $par
-#> [1] 0.7345928
-#> 
-#> $value
-#> [1] -0.8241212
-#> 
-#> $counts
-#> function gradient 
-#>       16       16 
-#> 
-#> $convergence
-#> [1] 0
-#> 
-#> $message
-#> [1] "CONVERGENCE: REL_REDUCTION_OF_F <= FACTR*EPSMCH"
+r.pl_index(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),init_param=c(1,1,1,1),init_index=1,method=c("MLE"))
+#>    Cut-off Point Sensitivity Specificity 1-Specificity
+#> J       2.257651   0.5843951   0.7345488     0.2654512
+#> ER      2.128638   0.6365278   0.6790223     0.3209777
+#> CZ      2.155423   0.6258267   0.6909883     0.3090117
+#> EC      2.049502   0.6676484   0.6424604     0.3575396
 ```
 
 ``` r
 library(PLindleyROC)
-plER(alpha1=2,beta1=5,alpha2=6,beta2=1,init=0)
-#> $par
-#> [1] 0.7430008
-#> 
-#> $value
-#> [1] 0.1247003
-#> 
-#> $counts
-#> function gradient 
-#>       11       11 
-#> 
-#> $convergence
-#> [1] 0
-#> 
-#> $message
-#> [1] "CONVERGENCE: REL_REDUCTION_OF_F <= FACTR*EPSMCH"
+x=c(1,2,2,3,1)
+y=c(1,3,2,4,2,3)
+r.pl_graph(x,y,init_param=c(1,1,1,1),empirical=TRUE,method=c("MLE"))
 ```
 
-``` r
-library(PLindleyROC)
-plCZ(alpha1=2,beta1=5,alpha2=6,beta2=1,init=0)
-#> $par
-#> [1] 0.736217
-#> 
-#> $value
-#> [1] -0.831771
-#> 
-#> $counts
-#> function gradient 
-#>       17       17 
-#> 
-#> $convergence
-#> [1] 0
-#> 
-#> $message
-#> [1] "CONVERGENCE: REL_REDUCTION_OF_F <= FACTR*EPSMCH"
-```
-
-``` r
-library(PLindleyROC)
-plIU(alpha1=2,beta1=5,alpha2=6,beta2=1,init=0)
-#> $par
-#> [1] 0.7345927
-#> 
-#> $value
-#> [1] 0.113501
-#> 
-#> $counts
-#> function gradient 
-#>       12       12 
-#> 
-#> $convergence
-#> [1] 0
-#> 
-#> $message
-#> [1] "CONVERGENCE: REL_REDUCTION_OF_F <= FACTR*EPSMCH"
-```
-
-``` r
-library(PLindleyROC)
-plNI(alpha1=2,beta1=5,alpha2=6,beta2=1,init=0.5)
-#> $par
-#> [1] 0.7873601
-#> 
-#> $value
-#> [1] -0.01326588
-#> 
-#> $counts
-#> function gradient 
-#>        6        6 
-#> 
-#> $convergence
-#> [1] 0
-#> 
-#> $message
-#> [1] "CONVERGENCE: REL_REDUCTION_OF_F <= FACTR*EPSMCH"
-```
-
-``` r
-library(PLindleyROC)
-x=c(1,2,3,4)
-y=c(2,3,4)
-plROC(x,y,alpha1=2,beta1=5,alpha2=6,beta2=1,empirical=FALSE)
-```
-
-<img src="man/figures/README-pressure-1.png" width="100%" />
-
-``` r
-library(PLindleyROC)
-prfROC(ctp=0.5,alpha1=2,beta1=5,alpha2=6,beta2=1)
-#>  Sensitivitiy   Specificity 1-Specificity 
-#>     0.9921878     0.6538067     0.3461933
-```
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
 
 ## Corresponding Author
 

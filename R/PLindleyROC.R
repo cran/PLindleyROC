@@ -1,4 +1,4 @@
-#' Receiver Operating Characteristic for Power Lindley Distribution
+#' Receiver Operating Characteristic based on Power Lindley Distribution
 #' @export
 #' @name PLindleyROC
 #' @param x,y vector of quantiles.
@@ -7,87 +7,55 @@
 #'  to be the number required.
 #' @param alpha shape parameter.
 #' @param beta scale parameter.
-#' @param alpha1 shape parameter of first sample.
-#' @param beta1 scale parameter of first sample.
-#' @param alpha2 shape parameter of second sample.
-#' @param beta2 scale parameter of second sample.
-#' @param init initial value for the optimization calculation.
+#' @param alpha1 shape parameter of distribution of first sample.
+#' @param beta1 scale parameter of distribution of first sample.
+#' @param alpha2 shape parameter of distribution of second sample.
+#' @param beta2 scale parameter of distribution of second sample.
+#' @param init_index initial index value for the optimization calculation.
+#' @param init_param initial paremeter values for the estimation method.
+#' @param true_param true parameter values.
+#' @param method estimation method. The default value for the method is "MLE".
 #' @param empirical empirical must be TRUE or FALSE.
-#' @param ctp cut-off point value.
-#' @description Receiver operating characteristic (ROC) analysis is carried out
-#' from the Power Lindley distribution. Specificity, sensitivity, area under the
-#' curve, and ROC curve are evaluated.
+#' @description ROC curve analysis is performed assuming samples are from the
+#' Power Lindley distribution. Specificity, sensitivity, area under the curve
+#' and ROC curve are provided.
 #' @details
 #'  The probability density function (PDF) and cumulative distribution function
 #'  (CDF) are as follows:
-#' \deqn{f\left( x\right) =\frac{\alpha \beta ^{2}}{\beta +1}\left( 1+x^{\alpha}
+#' \deqn{f\left( x;\boldsymbol{\theta }\right) =\frac{\alpha \beta ^{2}}{
+#' \beta +1}\left( 1+x^{\alpha}
 #' \right) x^{\alpha -1}\exp \left( -\beta x^{\alpha }\right)}
-#' \deqn{=zg_{1}\left( t\right) +\left( 1-z\right) g_{2}\left( t\right)}
+#' \deqn{=zg_{1}\left( t\right) +\left( 1-z\right) g_{2}\left( t\right),}
 #'
-#' \deqn{F\left( x\right) =P\left( X\leq x\right) =1-\left( 1+zx^{\alpha }
+#' \deqn{F\left( x;\boldsymbol{\theta }\right) =P\left( X\leq x\right) =1-
+#' \left( 1+zx^{\alpha }
 #' \right)
-#' \exp \left( -\beta x^{\alpha }\right)}
-#' and quantile function is given by,
-#' \deqn{Q\left( u\right) =F^{-1}\left( u\right) =\left\{ -\frac{W\left( \left(
+#' \exp \left( -\beta x^{\alpha }\right),}
+#' and quantile function is given by
+#' \deqn{Q\left( u;\boldsymbol{\theta }\right) =F^{-1}\left( u;
+#' \boldsymbol{\theta }\right) =\left\{ -\frac{W\left( \left(
 #' 1+\beta \right) \left( -1+u\right) \exp \left( -\left( 1+\beta \right)
 #'                                               \right) \right) +1+\beta }
-#'                                        {\beta }\right\} ^{\frac{1}{\alpha }}}
-#' ,where
-#' \deqn{z =\frac{\beta }{\beta +1}}
+#'                                      {\beta }\right\} ^{\frac{1}{\alpha }},}
+#' where
+#' \deqn{z =\frac{\beta }{\beta +1},}
 #' \deqn{g_{1}\left( x\right)  =\alpha \beta x^{\alpha -1}\exp \left( -\beta
-#' x^{\alpha }\right)}
+#' x^{\alpha }\right),}
 #' \deqn{g_{2}\left( x\right)  =\alpha \beta ^{2}x^{2\alpha -1}\exp \left(-\beta
-#' x^{\alpha }\right)}
-#' \eqn{\alpha>0} is a shape parameter, \eqn{\beta>0} is a scale parameter,
-#' \eqn{0<u<1} and \eqn{W} is Lambert W function.
+#' x^{\alpha }\right),}
+#' \eqn{\boldsymbol{\theta =}\left( \alpha ,\beta \right) }, \eqn{0<u<1},
+#' \eqn{\alpha>0} is a shape parameter, \eqn{\beta>0} is a scale parameter and
+#' W(•) is Lambert W function.
 #'
-#' Let \eqn{c} be the cut-off point, \eqn{X_{1}\sim PL\left( \alpha_{1},
-#' \beta_{1}\right) }
-#' and \eqn{X_{2}\sim PL\left( \alpha_{2},\beta_{2}\right) } with
-#' \eqn{\alpha_{2}>\alpha_{1}}.
-#' \eqn{F_{1}} and \eqn{F_{2}} are the cumulative distribution functions related
-#'  to \eqn{X_{1}} and \eqn{X_{2}}, respectively.
-#' In that case, the 1-specificity (False Positive Rate,FPR) and sensitivity
-#' (True Positive Rate,TPR) are given by,
-#' \deqn{FPR =P\left( X_{1}>c\right) =1-P\left( X_{1}\leq c\right) =1-F_{1}
-#' \left(c\right)}
-#' \deqn{TPR =1-F_{2}\left( Q_{1}\left( 1-FPR\right) \right)}
-#' and Receiver Operating Characteristic (ROC) curve can be expressed
-#' as follows:
-#' \deqn{ROC =\left\{\left(r,( 1-F_{2}\left( Q_{1}\left(
-#' 1-r; \boldsymbol{\theta }\right) \right),
-#' r\in \left( 0,1\right) \right)\right\}},
-#' where \eqn{\boldsymbol{\theta }=\left( \alpha _{1},\alpha _{2},
-#' \beta _{1},\beta_{2}\right)}.
+#'Additionally, the estimation methods Anderson-Darling "AD", Cramér-von Mises
+#'"CvM", least squares "LS" and weighted least squares "WLS" as well as the
+#'"TRUE" option for the true value, are available. Please note that the default
+#'value for the method parameter is maximum likelihood "ML" estimation.
 #'
-#'Performance assesments for the ROC analysis are as follows:
-#' \deqn{AUC =\int\limits_{0}^{1}ROCdr}
-#' \deqn{J\left( c\right)  =\underset{c}{\arg \max }
-#' \left\{ \left( 1-F_{2}\left( c\right)
-#' \right) +F_{1}\left( c\right) -1\right\}}
-#' \deqn{ER\left( c\right)  = \underset{c}{\arg \min }
-#'  \left\{ \sqrt{\left( 1-F_{1}\left( c\right) \right)
-#' ^{2}+\left( F_{2}\left( c\right) \right) ^{2}} \right\}}
-#' \deqn{CZ\left( c\right)  = \underset{c}{\arg \max }
-#' \left\{ \left( 1-F_{2}\left( c\right) \right) \times F_{1}\left(
-#' c\right)  \right\}}
-#' \deqn{IU\left( c\right)  =\left\{ \left\vert \left( 1-F_{2}\left( c\right)
-#' -AUC\right) \right\vert +\left\vert F_{1}\left( c\right) -AUC\right\vert
-#' \right\}}
-#' \deqn{NI\left( c\right)  =\underset{c}{\arg \max }\left\{ \left( \left(
-#' 1-F_{1}\left( c\right) \right) \times F_{2}\left( c\right) \times
-#' F_{1}\left( c\right) \times \left( 1-F_{2}\left( c\right) \right) \right)
-#' \right.   \nonumber \\
-#' \left. +\left( F_{1}\left( c\right) \times F_{2}\left( c\right) \times
-#'                 \left( 1-F_{1}\left( c\right) \right) \times
-#'                 \left( 1-F_{2}\left( c\right)
-#'                                                    \right) \right) \right\}}
-#',where AUC is area under the ROC curve, J is Youden's J index, ER is the
-#'closest to
-#'\eqn{\left( 0,1\right)} criteria, CZ is the concordance probability method,
-#' IU is index of Union and NI is new index.
-#' @return  \code{dPLD} gives the probability density function of Power
-#' Lindley Distribution.
+#'The cut-off point values corresponding to Youden's J index (J), the criterion
+#'closest to (0, 1) (ER), the concordance probability method (CZ), and the newly
+#'proposed Ertan-Coskun index (EC) are provided.
+#'
 #' @references
 #' Akgenç, E., and Kuş, C., 2023,
 #' *ROC Curve Analysis for the Measurements Distributed Power-Lindley*
@@ -124,18 +92,20 @@
 #' Youden, W. J., 1950,
 #' *Index for rating diagnostic tests*, Cancer, 3(1), 32-35.
 #'
+#' @return  \code{dPLD} gives the probability density function of Power
+#' Lindley Distribution.
 #' @examples
 #' dPLD(c(1,2,3,4,5,200),alpha=3,beta=2)
-dPLD<- function(x,alpha,beta) {
+dPLD<-function(x,alpha,beta){
   if(any(alpha<=0)) {stop(paste("alpha value must be greather than 0","\n",""))}
   if(any(beta<=0)) {stop(paste("beta value must be greather than 0","\n",""))}
-  pdf<-NULL;for(i in seq_along(x))  {
+  pdf<-NULL;for(i in seq_along(x)){
     pdf[i]<-(alpha*(beta^2)*(1+(x[i]^alpha))*x[i]^(alpha-1)
-             *exp(-beta*(x[i]^alpha))/(beta+1))
+             *exp((-1)*beta*(x[i]^alpha))/(beta+1))
   }
   return(pdf)
 }
-#' Receiver Operating Characteristic for Power Lindley Distribution
+#' Receiver Operating Characteristic based on Power Lindley Distribution
 #' @export
 #' @rdname PLindleyROC
 #' @return \code{pPLD} gives the cumulative density function of
@@ -147,12 +117,12 @@ pPLD<-function(x,alpha,beta){
   if(any(beta<=0)) {stop(paste("beta value must be greather than 0","\n",""))}
   cdf<-NULL;for (i in seq_along(x)) {
     ifelse(x[i]>0,
-           cdf[i]<- 1-(1+(beta/(beta+1))*x[i]^alpha)*exp(-beta*(x[i]^alpha)),
-           cdf[i]<- 0)
+          cdf[i]<- 1-(1+(beta/(beta+1))*x[i]^alpha)*exp((-1)*beta*(x[i]^alpha)),
+          cdf[i]<- 0)
   }
   return(cdf)
 }
-#' Receiver Operating Characteristic for Power Lindley Distribution
+#' Receiver Operating Characteristic based on Power Lindley Distribution
 #' @export
 #' @rdname PLindleyROC
 #' @return \code{qPLD} gives the quantile function of
@@ -170,7 +140,7 @@ qPLD<-function(p,alpha,beta){
   }
   return(qqn)
 }
-#' Receiver Operating Characteristic for Power Lindley Distribution
+#' Receiver Operating Characteristic based on Power Lindley Distribution
 #' @export
 #' @rdname PLindleyROC
 #' @return \code{rPLD} gives random numbers from Power Lindley Distribution.
@@ -184,194 +154,1015 @@ rPLD<-function(n,alpha,beta){
   rn<-qPLD(stats::runif(n),alpha,beta)
   return(rn)
 }
-#' Receiver Operating Characteristic for Power Lindley Distribution
+#' Receiver Operating Characteristic based on Power Lindley Distribution
 #' @export
 #' @rdname PLindleyROC
-#' @return \code{plAUC} gives area under curve of Power
-#' Lindley Distribution. Area under the ROC curve is obtained.
+#' @return \code{r.pl_auc} gives the Area Under the Curve (AUC) when the data
+#' conforms to the Power Lindley Distribution.
 #' @examples
-#' \donttest{plAUC(alpha1=2,beta1=5,alpha2=6,beta2=1)}
-plAUC<- function(alpha1,beta1,alpha2,beta2)
+#' r.pl_auc(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),
+#' true_param=c(alpha1=1,beta1=1,alpha2=1,beta2=1),method=c("TRUE"))
+r.pl_auc<- function(x,y,init_param=c(alpha1=1,beta1=1,alpha2=1,beta2=1),
+                 true_param=c(alpha1=1,beta1=1,alpha2=1,beta2=1),
+                 method=c("MLE","AD","CvM","LSE","WLSE","TRUE"))
 {
+  alpha1<-init_param[[1]]
+  beta1<-init_param[[2]]
+  alpha2<-init_param[[3]]
+  beta2<-init_param[[4]]
 if(any(alpha1<=0)) {stop(paste("alpha1 value must be greather than 0","\n",""))}
 if(any(beta1<=0)) {stop(paste("beta1 value must be greather than 0","\n",""))}
 if(any(alpha2<=0)) {stop(paste("alpha2 value must be greather than 0","\n",""))}
 if(any(beta2<=0)) {stop(paste("beta2 value must be greather than 0","\n",""))}
-  stats::integrate(function(c) {
-    auc<- 1-pPLD(qPLD(c,alpha1,beta1),alpha2,beta2)
-    return(auc)
-  },0,1)$value}
-#' Receiver Operating Characteristic for Power Lindley Distribution
+  method<- base::match.arg(method)
+
+  if (method=="MLE") {
+    lfxy<-function(par) {
+      alpha1<-par[1]
+      beta1<-par[2]
+      alpha2<-par[3]
+      beta2<-par[4]
+      t<--sum(log(dPLD(x,alpha1,beta1)))-sum(log(dPLD(y,alpha2,beta2)))
+      return(t)
+    }
+    mlexy<-try((stats::optim(c(alpha1,beta1,alpha2,beta2),lfxy,method="L-BFGS-B"
+                             ,hessian = TRUE)),silent=TRUE)
+    if (is.character(mlexy)) {
+     stop("Optimization did not converge.Please check your initial parameters.")
+    } else {
+      alpha1 <- mlexy$par[1]
+      beta1 <- mlexy$par[2]
+      alpha2 <- mlexy$par[3]
+      beta2 <- mlexy$par[4]
+    }
+    stats::integrate(function(c) {
+      auc<- 1-pPLD(qPLD(c,alpha1,beta1),alpha2,beta2)
+      return(auc)
+    },0,1)$value
+  }
+  else if (method=="AD") {
+    QADx<-function(par,x){
+      alpha1<-par[1]
+      beta1<-par[2]
+      x<-sort(x)
+      adx<-sort(x,decreasing=TRUE)
+      n<-NROW(x)
+      i<-seq(1:n)
+      AD<--n-(1/n)*sum((2*i-1)*(log(pPLD(x,alpha1,beta1))+log(1-pPLD(adx,alpha1,
+                                                                     beta1))))
+      return(AD)
+    }
+    QADy<-function(par,y){
+      alpha2<-par[1]
+      beta2<-par[2]
+      y<-sort(y)
+      ady<-sort(y,decreasing=TRUE)
+      n<-NROW(y)
+      i<-seq(1:n)
+      AD<--n-(1/n)*sum((2*i-1)*(log(pPLD(y,alpha2,beta2))+log(1-pPLD(ady,alpha2,
+                                                                     beta2))))
+      return(AD)
+    }
+    adex<-try(stats::optim(c(alpha1,beta1),QADx,x=x),silent=TRUE)
+    adey<-try(stats::optim(c(alpha2,beta2),QADy,y=y),silent=TRUE)
+    if (is.character(adex)|is.character(adey)) {
+     stop("Optimization did not converge.Please check your initial parameters.")
+    } else {
+      alpha1 <- adex$par[1]
+      beta1 <- adex$par[2]
+      alpha2 <- adey$par[1]
+      beta2 <- adey$par[2]
+    }
+    stats::integrate(function(c) {
+      auc<- 1-pPLD(qPLD(c,alpha1,beta1),alpha2,beta2)
+      return(auc)
+    },0,1)$value
+  }
+  else if (method=="CvM") {
+    QCVx<-function(par,x){
+      alpha1<-par[1]
+      beta1<-par[2]
+      x<-sort(x)
+      n<-NROW(x)
+      i<-seq(1:n)
+      CV<-1/(12*n)+sum((pPLD(x,alpha1,beta1)-(i-0.5)/n)^2)
+      return(CV)
+    }
+    QCVy<-function(par,y){
+      alpha2<-par[1]
+      beta2<-par[2]
+      y<-sort(y)
+      n<-NROW(y)
+      i<-seq(1:n)
+      CV<-1/(12*n)+sum((pPLD(y,alpha2,beta2)-(i-0.5)/n)^2)
+      return(CV)
+    }
+    cvx<-try(stats::optim(c(alpha1,beta1),QCVx,x=x),silent=TRUE)
+    cvy<-try(stats::optim(c(alpha2,beta2),QCVy,y=y),silent=TRUE)
+    if (is.character(cvx)|is.character(cvy)) {
+     stop("Optimization did not converge.Please check your initial parameters.")
+    } else {
+      alpha1 <- cvx$par[1]
+      beta1 <- cvx$par[2]
+      alpha2 <- cvy$par[1]
+      beta2 <- cvy$par[2]
+    }
+    stats::integrate(function(c) {
+      auc<- 1-pPLD(qPLD(c,alpha1,beta1),alpha2,beta2)
+      return(auc)
+    },0,1)$value
+  }
+  else if (method=="LSE") {
+    QLSEx<-function(par,x){
+      alpha1<-par[1]
+      beta1<-par[2]
+      x<-sort(x)
+      n<-NROW(x)
+      i<-seq(1:n)
+      Q<-sum((pPLD(x,alpha1,beta1)-i/(n+1))^2)
+      return(Q)
+    }
+    QLSEy<-function(par,y){
+      alpha2<-par[1]
+      beta2<-par[2]
+      y<-sort(y)
+      n<-NROW(y)
+      i<-seq(1:n)
+      Q<-sum((pPLD(y,alpha2,beta2)-i/(n+1))^2)
+      return(Q)
+    }
+    lsex<-try(stats::optim(c(alpha1,beta1),QLSEx,x=x),silent=TRUE)
+    lsey<-try(stats::optim(c(alpha2,beta2),QLSEy,y=y),silent=TRUE)
+    if (is.character(lsex)|is.character(lsey)) {
+     stop("Optimization did not converge.Please check your initial parameters.")
+    } else {
+      alpha1 <- lsex$par[1]
+      beta1 <- lsex$par[2]
+      alpha2 <- lsey$par[1]
+      beta2 <- lsey$par[2]
+    }
+    stats::integrate(function(c) {
+      auc<- 1-pPLD(qPLD(c,alpha1,beta1),alpha2,beta2)
+      return(auc)
+    },0,1)$value
+  }
+  else if (method=="WLSE") {
+    QWLSEx<-function(par,x){
+      alpha1<-par[1]
+      beta1<-par[2]
+      x<-sort(x)
+      n<-NROW(x)
+      i<-seq(1:n)
+      QW<-sum(((n+1)^2*(n+2)/(i*(n-i+1)))*(pPLD(x,alpha1,beta1)-i/(n+1))^2)
+      return(QW)
+    }
+    QWLSEy<-function(par,y){
+      alpha2<-par[1]
+      beta2<-par[2]
+      y<-sort(y)
+      n<-NROW(y)
+      i<-seq(1:n)
+      QW<-sum(((n+1)^2*(n+2)/(i*(n-i+1)))*(pPLD(y,alpha2,beta2)-i/(n+1))^2)
+      return(QW)
+    }
+    wlsex<-try(stats::optim(c(alpha1,beta1),QWLSEx,x=x),silent=TRUE)
+    wlsey<-try(stats::optim(c(alpha2,beta2),QWLSEy,y=y),silent=TRUE)
+    if (is.character(wlsex)|is.character(wlsey)) {
+    stop("Optimization did not converge.Please check your initial parameters.")
+    } else {
+      alpha1 <- wlsex$par[1]
+      beta1 <- wlsex$par[2]
+      alpha2 <- wlsey$par[1]
+      beta2 <- wlsey$par[2]
+    }
+    stats::integrate(function(c) {
+      auc<- 1-pPLD(qPLD(c,alpha1,beta1),alpha2,beta2)
+      return(auc)
+    },0,1)$value
+  }
+  else if (method=="TRUE") {
+    x<-NULL
+    y<-NULL
+    init_param <- NULL
+    alpha1<-true_param[[1]]
+    beta1<-true_param[[2]]
+    alpha2<-true_param[[3]]
+    beta2<-true_param[[4]]
+if(any(alpha1<=0)) {stop(paste("alpha1 value must be greather than 0","\n",""))}
+if(any(beta1<=0)) {stop(paste("beta1 value must be greather than 0","\n",""))}
+if(any(alpha2<=0)) {stop(paste("alpha2 value must be greather than 0","\n",""))}
+if(any(beta2<=0)) {stop(paste("beta2 value must be greather than 0","\n",""))}
+    stats::integrate(function(c) {
+      auc<- 1-pPLD(qPLD(c,alpha1,beta1),alpha2,beta2)
+      return(auc)
+    },0,1)$value
+  }
+}
+#' Receiver Operating Characteristic based on Power Lindley Distribution
 #' @export
 #' @rdname PLindleyROC
-#' @return \code{plJ} gives Youden's index for Power Lindley Distribution.
-#'  Youden's J statistics is a way of summarising the performance of a
-#'  diagnostic test.
+#' @return \code{r.pl_index} gives index values when the data conforms to the
+#' Power Lindley Distribution.
 #' @examples
-#' plJ(alpha1=2,beta1=5,alpha2=6,beta2=1,init=0)
-plJ<- function(alpha1,beta1,alpha2,beta2,init=0)
+#' r.pl_index(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),init_param=c(1,1,1,1),
+#' init_index=1,method=c("MLE"))
+r.pl_index<- function(x,y,init_param=c(alpha1=1,beta1=1,alpha2=1,beta2=1),
+                      init_index=1,
+                      true_param=c(alpha1=1,beta1=1,alpha2=1,beta2=1),
+                      method=c("MLE","AD","CvM","LSE","WLSE","TRUE"))
 {
+  alpha1<-init_param[[1]]
+  beta1<-init_param[[2]]
+  alpha2<-init_param[[3]]
+  beta2<-init_param[[4]]
+if(any(alpha1<=0)) {stop(paste("alpha1 value must be greather than 0","\n",""))}
+if(any(beta1<=0)) {stop(paste("beta1 value must be greather than 0","\n",""))}
+if(any(alpha2<=0)) {stop(paste("alpha2 value must be greather than 0","\n",""))}
+if(any(beta2<=0)) {stop(paste("beta2 value must be greather than 0","\n",""))}
+  method<- base::match.arg(method)
+
+  if (method=="MLE") {
+    lfxy<-function(par) {
+      alpha1<-par[1]
+      beta1<-par[2]
+      alpha2<-par[3]
+      beta2<-par[4]
+      t<--sum(log(dPLD(x,alpha1,beta1)))-sum(log(dPLD(y,alpha2,beta2)))
+      return(t)
+    }
+  mlexy<-try((stats::optim(c(alpha1,beta1,alpha2,beta2),lfxy,method="L-BFGS-B",
+                             hessian = TRUE)),silent=TRUE)
+    if (is.character(mlexy)) {
+    stop("Optimization did not converge.Please check your initial parameters.")
+    } else {
+      alpha1 <- mlexy$par[1]
+      beta1 <- mlexy$par[2]
+      alpha2 <- mlexy$par[3]
+      beta2 <- mlexy$par[4]
+    }
+    j<- function(c) {
+      a<- pPLD(c,alpha1,beta1)-pPLD(c,alpha2,beta2)
+      return(-a)
+    }
+    J<-stats::optim(init_index,j,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    J$par
+    -J$value
+    er<-function(c){
+      erx<-sqrt(((pPLD(c,alpha2,beta2))^2)+((1-pPLD(c,alpha1,beta1))^2))
+      return(erx)
+    }
+    ER<-stats::optim(init_index,er,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    ER$par
+    -ER$value
+    cz<-function(c){
+      czx<-(1-pPLD(c,alpha2,beta2))*(pPLD(c,alpha1,beta1))
+      return(-czx)
+    }
+    CZ<-stats::optim(init_index,cz,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    CZ$par
+    -CZ$value
+    ni<- function(c) {
+      nix<-((1-pPLD(c,alpha1,beta1))*(1-(1-pPLD(c,alpha2,beta2)))*
+              pPLD(c,alpha1,beta1)*(1-pPLD(c,alpha2,beta2)))+
+        (pPLD(c,alpha1,beta1)*(1-(1-pPLD(c,alpha2,beta2)))*
+           (1-pPLD(c,alpha1,beta1))*(1-pPLD(c,alpha2,beta2)))
+      return(-nix)
+    }
+    NI<-stats::optim(init_index,ni,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    NI$par
+    -NI$value
+    senJ<-1-pPLD(J$par,alpha2,beta2)
+    spJ<-pPLD(J$par,alpha1,beta1)
+    SPJ<-1-spJ
+    senER<-1-pPLD(ER$par,alpha2,beta2)
+    spER<-pPLD(ER$par,alpha1,beta1)
+    SPER<-1-spER
+    senCZ<-1-pPLD(CZ$par,alpha2,beta2)
+    spCZ<-pPLD(CZ$par,alpha1,beta1)
+    SPCZ<-1-spCZ
+    senNI<-1-pPLD(NI$par,alpha2,beta2)
+    spNI<-pPLD(NI$par,alpha1,beta1)
+    SPNI<-1-spNI
+    row1<-base::rbind(J$par,ER$par,CZ$par,NI$par)
+    row2<-base::rbind(senJ,senER,senCZ,senNI)
+    row3<-base::rbind(spJ,spER,spCZ,spNI)
+    row4<-base::rbind(SPJ,SPER,SPCZ,SPNI)
+    col<-base::cbind(row1,row2,row3,row4)
+    base::colnames(col)<-c("Cut-off Point","Sensitivity",
+                           "Specificity","1-Specificity")
+    base::rownames(col)<-c("J","ER","CZ","EC")
+    return(col)
+  }
+  else if (method=="AD") {
+    QADx<-function(par,x){
+      alpha1<-par[1]
+      beta1<-par[2]
+      x<-sort(x)
+      adx<-sort(x,decreasing=TRUE)
+      n<-NROW(x)
+      i<-seq(1:n)
+      AD<--n-(1/n)*sum((2*i-1)*(log(pPLD(x,alpha1,beta1))+log(1-pPLD(adx,alpha1,
+                                                                     beta1))))
+      return(AD)
+    }
+    QADy<-function(par,y){
+      alpha2<-par[1]
+      beta2<-par[2]
+      y<-sort(y)
+      ady<-sort(y,decreasing=TRUE)
+      n<-NROW(y)
+      i<-seq(1:n)
+      AD<--n-(1/n)*sum((2*i-1)*(log(pPLD(y,alpha2,beta2))+log(1-pPLD(ady,alpha2,
+                                                                     beta2))))
+      return(AD)
+    }
+    adex<-try(stats::optim(c(alpha1,beta1),QADx,x=x),silent=TRUE)
+    adey<-try(stats::optim(c(alpha2,beta2),QADy,y=y),silent=TRUE)
+    if (is.character(adex)|is.character(adey)) {
+    stop("Optimization did not converge.Please check your initial parameters.")
+    } else {
+      alpha1 <- adex$par[1]
+      beta1 <- adex$par[2]
+      alpha2 <- adey$par[1]
+      beta2 <- adey$par[2]
+    }
+    j<- function(c) {
+      a<- pPLD(c,alpha1,beta1)-pPLD(c,alpha2,beta2)
+      return(-a)
+    }
+    J<-stats::optim(init_index,j,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    J$par
+    -J$value
+    er<-function(c){
+      erx<-sqrt(((pPLD(c,alpha2,beta2))^2)+((1-pPLD(c,alpha1,beta1))^2))
+      return(erx)
+    }
+    ER<-stats::optim(init_index,er,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    ER$par
+    -ER$value
+    cz<-function(c){
+      czx<-(1-pPLD(c,alpha2,beta2))*(pPLD(c,alpha1,beta1))
+      return(-czx)
+    }
+    CZ<-stats::optim(init_index,cz,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    CZ$par
+    -CZ$value
+    ni<- function(c) {
+      nix<-((1-pPLD(c,alpha1,beta1))*(1-(1-pPLD(c,alpha2,beta2)))*
+              pPLD(c,alpha1,beta1)*(1-pPLD(c,alpha2,beta2)))+
+        (pPLD(c,alpha1,beta1)*(1-(1-pPLD(c,alpha2,beta2)))*
+           (1-pPLD(c,alpha1,beta1))*(1-pPLD(c,alpha2,beta2)))
+      return(-nix)
+    }
+    NI<-stats::optim(init_index,ni,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    NI$par
+    -NI$value
+    senJ<-1-pPLD(J$par,alpha2,beta2)
+    spJ<-pPLD(J$par,alpha1,beta1)
+    SPJ<-1-spJ
+    senER<-1-pPLD(ER$par,alpha2,beta2)
+    spER<-pPLD(ER$par,alpha1,beta1)
+    SPER<-1-spER
+    senCZ<-1-pPLD(CZ$par,alpha2,beta2)
+    spCZ<-pPLD(CZ$par,alpha1,beta1)
+    SPCZ<-1-spCZ
+    senNI<-1-pPLD(NI$par,alpha2,beta2)
+    spNI<-pPLD(NI$par,alpha1,beta1)
+    SPNI<-1-spNI
+    row1<-base::rbind(J$par,ER$par,CZ$par,NI$par)
+    row2<-base::rbind(senJ,senER,senCZ,senNI)
+    row3<-base::rbind(spJ,spER,spCZ,spNI)
+    row4<-base::rbind(SPJ,SPER,SPCZ,SPNI)
+    col<-base::cbind(row1,row2,row3,row4)
+    base::colnames(col)<-c("Cut-off Point","Sensitivity",
+                           "Specificity","1-Specificity")
+    base::rownames(col)<-c("J","ER","CZ","EC")
+    return(col)
+  }
+
+  else if (method=="CvM") {
+    QCVx<-function(par,x){
+      alpha1<-par[1]
+      beta1<-par[2]
+      x<-sort(x)
+      n<-NROW(x)
+      i<-seq(1:n)
+      CV<-1/(12*n)+sum((pPLD(x,alpha1,beta1)-(i-0.5)/n)^2)
+      return(CV)
+    }
+    QCVy<-function(par,y){
+      alpha2<-par[1]
+      beta2<-par[2]
+      y<-sort(y)
+      n<-NROW(y)
+      i<-seq(1:n)
+      CV<-1/(12*n)+sum((pPLD(y,alpha2,beta2)-(i-0.5)/n)^2)
+      return(CV)
+    }
+    cvx<-try(stats::optim(c(alpha1,beta1),QCVx,x=x),silent=TRUE)
+    cvy<-try(stats::optim(c(alpha2,beta2),QCVy,y=y),silent=TRUE)
+    if (is.character(cvx)|is.character(cvy)) {
+    stop("Optimization did not converge.Please check your initial parameters.")
+    } else {
+      alpha1 <- cvx$par[1]
+      beta1 <- cvx$par[2]
+      alpha2 <- cvy$par[1]
+      beta2 <- cvy$par[2]
+    }
+    j<- function(c) {
+      a<- pPLD(c,alpha1,beta1)-pPLD(c,alpha2,beta2)
+      return(-a)
+    }
+    J<-stats::optim(init_index,j,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    J$par
+    -J$value
+    er<-function(c){
+      erx<-sqrt(((pPLD(c,alpha2,beta2))^2)+((1-pPLD(c,alpha1,beta1))^2))
+      return(erx)
+    }
+    ER<-stats::optim(init_index,er,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    ER$par
+    -ER$value
+    cz<-function(c){
+      czx<-(1-pPLD(c,alpha2,beta2))*(pPLD(c,alpha1,beta1))
+      return(-czx)
+    }
+    CZ<-stats::optim(init_index,cz,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    CZ$par
+    -CZ$value
+    ni<- function(c) {
+      nix<-((1-pPLD(c,alpha1,beta1))*(1-(1-pPLD(c,alpha2,beta2)))*
+              pPLD(c,alpha1,beta1)*(1-pPLD(c,alpha2,beta2)))+
+        (pPLD(c,alpha1,beta1)*(1-(1-pPLD(c,alpha2,beta2)))*
+           (1-pPLD(c,alpha1,beta1))*(1-pPLD(c,alpha2,beta2)))
+      return(-nix)
+    }
+    NI<-stats::optim(init_index,ni,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    NI$par
+    -NI$value
+    senJ<-1-pPLD(J$par,alpha2,beta2)
+    spJ<-pPLD(J$par,alpha1,beta1)
+    SPJ<-1-spJ
+    senER<-1-pPLD(ER$par,alpha2,beta2)
+    spER<-pPLD(ER$par,alpha1,beta1)
+    SPER<-1-spER
+    senCZ<-1-pPLD(CZ$par,alpha2,beta2)
+    spCZ<-pPLD(CZ$par,alpha1,beta1)
+    SPCZ<-1-spCZ
+    senNI<-1-pPLD(NI$par,alpha2,beta2)
+    spNI<-pPLD(NI$par,alpha1,beta1)
+    SPNI<-1-spNI
+    row1<-base::rbind(J$par,ER$par,CZ$par,NI$par)
+    row2<-base::rbind(senJ,senER,senCZ,senNI)
+    row3<-base::rbind(spJ,spER,spCZ,spNI)
+    row4<-base::rbind(SPJ,SPER,SPCZ,SPNI)
+    col<-base::cbind(row1,row2,row3,row4)
+    base::colnames(col)<-c("Cut-off Point","Sensitivity",
+                           "Specificity","1-Specificity")
+    base::rownames(col)<-c("J","ER","CZ","EC")
+    return(col)
+  }
+
+  else if (method=="LSE") {
+    QLSEx<-function(par,x){
+      alpha1<-par[1]
+      beta1<-par[2]
+      x<-sort(x)
+      n<-NROW(x)
+      i<-seq(1:n)
+      Q<-sum((pPLD(x,alpha1,beta1)-i/(n+1))^2)
+      return(Q)
+    }
+    QLSEy<-function(par,y){
+      alpha2<-par[1]
+      beta2<-par[2]
+      y<-sort(y)
+      n<-NROW(y)
+      i<-seq(1:n)
+      Q<-sum((pPLD(y,alpha2,beta2)-i/(n+1))^2)
+      return(Q)
+    }
+    lsex<-try(stats::optim(c(alpha1,beta1),QLSEx,x=x),silent=TRUE)
+    lsey<-try(stats::optim(c(alpha2,beta2),QLSEy,y=y),silent=TRUE)
+    if (is.character(lsex)|is.character(lsey)) {
+    stop("Optimization did not converge.Please check your initial parameters.")
+    } else {
+      alpha1 <- lsex$par[1]
+      beta1 <- lsex$par[2]
+      alpha2 <- lsey$par[1]
+      beta2 <- lsey$par[2]
+    }
+    j<- function(c) {
+      a<- pPLD(c,alpha1,beta1)-pPLD(c,alpha2,beta2)
+      return(-a)
+    }
+    J<-stats::optim(init_index,j,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    J$par
+    -J$value
+    er<-function(c){
+      erx<-sqrt(((pPLD(c,alpha2,beta2))^2)+((1-pPLD(c,alpha1,beta1))^2))
+      return(erx)
+    }
+    ER<-stats::optim(init_index,er,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    ER$par
+    -ER$value
+    cz<-function(c){
+      czx<-(1-pPLD(c,alpha2,beta2))*(pPLD(c,alpha1,beta1))
+      return(-czx)
+    }
+    CZ<-stats::optim(init_index,cz,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    CZ$par
+    -CZ$value
+    ni<- function(c) {
+      nix<-((1-pPLD(c,alpha1,beta1))*(1-(1-pPLD(c,alpha2,beta2)))*
+              pPLD(c,alpha1,beta1)*(1-pPLD(c,alpha2,beta2)))+
+        (pPLD(c,alpha1,beta1)*(1-(1-pPLD(c,alpha2,beta2)))*
+           (1-pPLD(c,alpha1,beta1))*(1-pPLD(c,alpha2,beta2)))
+      return(-nix)
+    }
+    NI<-stats::optim(init_index,ni,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    NI$par
+    -NI$value
+    senJ<-1-pPLD(J$par,alpha2,beta2)
+    spJ<-pPLD(J$par,alpha1,beta1)
+    SPJ<-1-spJ
+    senER<-1-pPLD(ER$par,alpha2,beta2)
+    spER<-pPLD(ER$par,alpha1,beta1)
+    SPER<-1-spER
+    senCZ<-1-pPLD(CZ$par,alpha2,beta2)
+    spCZ<-pPLD(CZ$par,alpha1,beta1)
+    SPCZ<-1-spCZ
+    senNI<-1-pPLD(NI$par,alpha2,beta2)
+    spNI<-pPLD(NI$par,alpha1,beta1)
+    SPNI<-1-spNI
+    row1<-base::rbind(J$par,ER$par,CZ$par,NI$par)
+    row2<-base::rbind(senJ,senER,senCZ,senNI)
+    row3<-base::rbind(spJ,spER,spCZ,spNI)
+    row4<-base::rbind(SPJ,SPER,SPCZ,SPNI)
+    col<-base::cbind(row1,row2,row3,row4)
+    base::colnames(col)<-c("Cut-off Point","Sensitivity",
+                           "Specificity","1-Specificity")
+    base::rownames(col)<-c("J","ER","CZ","EC")
+    return(col)
+  }
+
+  else if (method=="WLSE") {
+    QWLSEx<-function(par,x){
+      alpha1<-par[1]
+      beta1<-par[2]
+      x<-sort(x)
+      n<-NROW(x)
+      i<-seq(1:n)
+      QW<-sum(((n+1)^2*(n+2)/(i*(n-i+1)))*(pPLD(x,alpha1,beta1)-i/(n+1))^2)
+      return(QW)
+    }
+    QWLSEy<-function(par,y){
+      alpha2<-par[1]
+      beta2<-par[2]
+      y<-sort(y)
+      n<-NROW(y)
+      i<-seq(1:n)
+      QW<-sum(((n+1)^2*(n+2)/(i*(n-i+1)))*(pPLD(y,alpha2,beta2)-i/(n+1))^2)
+      return(QW)
+    }
+    wlsex<-try(stats::optim(c(alpha1,beta1),QWLSEx,x=x),silent=TRUE)
+    wlsey<-try(stats::optim(c(alpha2,beta2),QWLSEy,y=y),silent=TRUE)
+    if (is.character(wlsex)|is.character(wlsey)) {
+    stop("Optimization did not converge.Please check your initial parameters.")
+    } else {
+      alpha1 <- wlsex$par[1]
+      beta1 <- wlsex$par[2]
+      alpha2 <- wlsey$par[1]
+      beta2 <- wlsey$par[2]
+    }
+    j<- function(c) {
+      a<- pPLD(c,alpha1,beta1)-pPLD(c,alpha2,beta2)
+      return(-a)
+    }
+    J<-stats::optim(init_index,j,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    J$par
+    -J$value
+    er<-function(c){
+      erx<-sqrt(((pPLD(c,alpha2,beta2))^2)+((1-pPLD(c,alpha1,beta1))^2))
+      return(erx)
+    }
+    ER<-stats::optim(init_index,er,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    ER$par
+    -ER$value
+    cz<-function(c){
+      czx<-(1-pPLD(c,alpha2,beta2))*(pPLD(c,alpha1,beta1))
+      return(-czx)
+    }
+    CZ<-stats::optim(init_index,cz,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    CZ$par
+    -CZ$value
+    ni<- function(c) {
+      nix<-((1-pPLD(c,alpha1,beta1))*(1-(1-pPLD(c,alpha2,beta2)))*
+              pPLD(c,alpha1,beta1)*(1-pPLD(c,alpha2,beta2)))+
+        (pPLD(c,alpha1,beta1)*(1-(1-pPLD(c,alpha2,beta2)))*
+           (1-pPLD(c,alpha1,beta1))*(1-pPLD(c,alpha2,beta2)))
+      return(-nix)
+    }
+    NI<-stats::optim(init_index,ni,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    NI$par
+    -NI$value
+    senJ<-1-pPLD(J$par,alpha2,beta2)
+    spJ<-pPLD(J$par,alpha1,beta1)
+    SPJ<-1-spJ
+    senER<-1-pPLD(ER$par,alpha2,beta2)
+    spER<-pPLD(ER$par,alpha1,beta1)
+    SPER<-1-spER
+    senCZ<-1-pPLD(CZ$par,alpha2,beta2)
+    spCZ<-pPLD(CZ$par,alpha1,beta1)
+    SPCZ<-1-spCZ
+    senNI<-1-pPLD(NI$par,alpha2,beta2)
+    spNI<-pPLD(NI$par,alpha1,beta1)
+    SPNI<-1-spNI
+    row1<-base::rbind(J$par,ER$par,CZ$par,NI$par)
+    row2<-base::rbind(senJ,senER,senCZ,senNI)
+    row3<-base::rbind(spJ,spER,spCZ,spNI)
+    row4<-base::rbind(SPJ,SPER,SPCZ,SPNI)
+    col<-base::cbind(row1,row2,row3,row4)
+    base::colnames(col)<-c("Cut-off Point","Sensitivity",
+                           "Specificity","1-Specificity")
+    base::rownames(col)<-c("J","ER","CZ","EC")
+    return(col)
+  }
+
+  else if (method=="TRUE") {
+    x<-NULL
+    y<-NULL
+    init_param <- NULL
+    alpha1<-true_param[[1]]
+    beta1<-true_param[[2]]
+    alpha2<-true_param[[3]]
+    beta2<-true_param[[4]]
 if(any(alpha1<=0)) {stop(paste("alpha1 value must be greather than 0","\n",""))}
 if(any(beta1<=0)) {stop(paste("beta1 value must be greather than 0","\n",""))}
 if(any(alpha2<=0)) {stop(paste("alpha2 value must be greather than 0","\n",""))}
 if(any(beta2<=0)) {stop(paste("beta2 value must be greather than 0","\n",""))}
     j<- function(c) {
-    a<- pPLD(c,alpha1,beta1)-pPLD(c,alpha2,beta2)
-    return(-a)
+      a<- pPLD(c,alpha1,beta1)-pPLD(c,alpha2,beta2)
+      return(-a)
+    }
+    J<-stats::optim(init_index,j,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    J$par
+    -J$value
+    er<-function(c){
+      erx<-sqrt(((pPLD(c,alpha2,beta2))^2)+((1-pPLD(c,alpha1,beta1))^2))
+      return(erx)
+    }
+    ER<-stats::optim(init_index,er,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    ER$par
+    -ER$value
+    cz<-function(c){
+      czx<-(1-pPLD(c,alpha2,beta2))*(pPLD(c,alpha1,beta1))
+      return(-czx)
+    }
+    CZ<-stats::optim(init_index,cz,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    CZ$par
+    -CZ$value
+    ni<- function(c) {
+      nix<-((1-pPLD(c,alpha1,beta1))*(1-(1-pPLD(c,alpha2,beta2)))*
+              pPLD(c,alpha1,beta1)*(1-pPLD(c,alpha2,beta2)))+
+        (pPLD(c,alpha1,beta1)*(1-(1-pPLD(c,alpha2,beta2)))*
+           (1-pPLD(c,alpha1,beta1))*(1-pPLD(c,alpha2,beta2)))
+      return(-nix)
+    }
+    NI<-stats::optim(init_index,ni,method="L-BFGS-B",lower = -Inf,upper = Inf)
+    NI$par
+    -NI$value
+    senJ<-1-pPLD(J$par,alpha2,beta2)
+    spJ<-pPLD(J$par,alpha1,beta1)
+    SPJ<-1-spJ
+    senER<-1-pPLD(ER$par,alpha2,beta2)
+    spER<-pPLD(ER$par,alpha1,beta1)
+    SPER<-1-spER
+    senCZ<-1-pPLD(CZ$par,alpha2,beta2)
+    spCZ<-pPLD(CZ$par,alpha1,beta1)
+    SPCZ<-1-spCZ
+    senNI<-1-pPLD(NI$par,alpha2,beta2)
+    spNI<-pPLD(NI$par,alpha1,beta1)
+    SPNI<-1-spNI
+    row1<-base::rbind(J$par,ER$par,CZ$par,NI$par)
+    row2<-base::rbind(senJ,senER,senCZ,senNI)
+    row3<-base::rbind(spJ,spER,spCZ,spNI)
+    row4<-base::rbind(SPJ,SPER,SPCZ,SPNI)
+    col<-base::cbind(row1,row2,row3,row4)
+    base::colnames(col)<-c("Cut-off Point","Sensitivity",
+                           "Specificity","1-Specificity")
+    base::rownames(col)<-c("J","ER","CZ","EC")
+    return(col)
+
   }
-  J<-stats::optim(init,j,method="L-BFGS-B",lower = -Inf,upper = Inf)
-  J$par
-  -J$value
-  return(J)
 }
-#' Receiver Operating Characteristic for Power Lindley Distribution
+#' Receiver Operating Characteristic based on Power Lindley Distribution
 #' @export
 #' @rdname PLindleyROC
-#' @return \code{plER} gives the Closest to (0,1) Criteria (ER)
-#' for Power Lindley Distribution. The Closest to (0,1) Criteria (ER)
-#' is a way of summarising the performance of a diagnostic test.
+#' @return \code{r.pl_graph} gives the ROC curve when the data conforms to the
+#' Power Lindley Distribution.
 #' @examples
-#' plER(alpha1=2,beta1=5,alpha2=6,beta2=1,init=0)
-plER<- function(alpha1,beta1,alpha2,beta2,init=0)
+#' \donttest{x=c(1,2,2,3,1)}
+#' \donttest{y=c(1,3,2,4,2,3)}
+#' \donttest{r.pl_graph(x,y,init_param=c(1,1,1,1),
+#' empirical=TRUE,method=c("MLE"))}
+r.pl_graph<- function(x,y,init_param=c(alpha1=1,beta1=1,alpha2=1,beta2=1),
+                 true_param=c(alpha1=1,beta1=1,alpha2=1,beta2=1),
+                 empirical=TRUE,method=c("MLE","AD","CvM","LSE","WLSE","TRUE"))
 {
+  alpha1<-init_param[[1]]
+  beta1<-init_param[[2]]
+  alpha2<-init_param[[3]]
+  beta2<-init_param[[4]]
 if(any(alpha1<=0)) {stop(paste("alpha1 value must be greather than 0","\n",""))}
 if(any(beta1<=0)) {stop(paste("beta1 value must be greather than 0","\n",""))}
 if(any(alpha2<=0)) {stop(paste("alpha2 value must be greather than 0","\n",""))}
 if(any(beta2<=0)) {stop(paste("beta2 value must be greather than 0","\n",""))}
-  er<- function(c) {
-    a<- base::sqrt(((pPLD(c,alpha2,beta2))^2)+((1-pPLD(c,alpha1,beta1))^2))
-    return(a)
+  method<- base::match.arg(method)
+
+  if (method=="MLE") {
+    lfxy<-function(par) {
+      alpha1<-par[1]
+      beta1<-par[2]
+      alpha2<-par[3]
+      beta2<-par[4]
+      t<--sum(log(dPLD(x,alpha1,beta1)))-sum(log(dPLD(y,alpha2,beta2)))
+      return(t)
+    }
+  mlexy<-try((stats::optim(c(alpha1,beta1,alpha2,beta2),lfxy,method="L-BFGS-B",
+                             hessian = TRUE)),silent=TRUE)
+    if (is.character(mlexy)) {
+    stop("Optimization did not converge.Please check your initial parameters.")
+    } else {
+      alpha1 <- mlexy$par[1]
+      beta1 <- mlexy$par[2]
+      alpha2 <- mlexy$par[3]
+      beta2 <- mlexy$par[4]
+    }
+    if (empirical==TRUE) {
+      r<-seq(0.00001,1,0.00001)
+      roc<-1-pPLD(qPLD(r,alpha1,beta1),alpha2,beta2)
+      plot(1-r,roc,type="l", lty=2, lwd=2,ylim = c(0,1),xlim= c(0,1),
+           ylab = "Sensitivity",xlab = "1-Specificity",col=1,main="ROC Graph")
+      graphics::lines(c(0,1),c(0,1))
+      oldpar <- graphics::par(new = TRUE)
+      on.exit(graphics::par(oldpar))
+      Fn<- stats::ecdf(y)
+      roc2<- 1-Fn(stats::quantile(x,r))
+      plot(1-r,roc2,type="l",lwd=2,ylim = c(0,1),xlim= c(0,1),
+           ylab = "Sensitivity",xlab = "1-Specificity",col=1,main="ROC Graph")
+      graphics::legend('bottomright',inset=0.05,
+                       c("Empirical ROC Curve","Fitted ROC Curve"),
+                       lty=c(1,2),lwd = c(2,2),col=c(1,1))
+    } else if (empirical==FALSE) {
+      r<-seq(0.00001,1,0.00001)
+      roc<-1-pPLD(qPLD(r,alpha1,beta1),alpha2,beta2)
+      plot(1-r,roc,type="l", lty=2, lwd=2,ylim = c(0,1),xlim= c(0,1),
+           ylab = "Sensitivity",xlab = "1-Specificity",col=1,main="ROC Graph")
+      graphics::lines(c(0,1),c(0,1))
+      graphics::legend('bottomright',inset=0.05,
+                       c("Fitted ROC Curve"),lty=c(2),lwd = c(2),col=c(1))
+    }
   }
-  ER<-stats::optim(init,er,method="L-BFGS-B",lower = -Inf,upper = Inf)
-  ER$par
-  -ER$value
-  return(ER)
-}
-#' Receiver Operating Characteristic for Power Lindley Distribution
-#' @export
-#' @rdname PLindleyROC
-#' @return \code{plCZ} gives the Concordance Probability Method
-#' for Power Lindley Distribution. The Concordance Probability Method
-#' is a way of summarising the performance of a diagnostic test.
-#' @examples
-#' plCZ(alpha1=2,beta1=5,alpha2=6,beta2=1,init=0)
-plCZ<- function(alpha1,beta1,alpha2,beta2,init=0)
-{
+  else if (method=="AD") {
+    QADx<-function(par,x){
+      alpha1<-par[1]
+      beta1<-par[2]
+      x<-sort(x)
+      adx<-sort(x,decreasing=TRUE)
+      n<-NROW(x)
+      i<-seq(1:n)
+      AD<--n-(1/n)*sum((2*i-1)*(log(pPLD(x,alpha1,beta1))+log(1-pPLD(adx,alpha1,
+                                                                     beta1))))
+      return(AD)
+    }
+    QADy<-function(par,y){
+      alpha2<-par[1]
+      beta2<-par[2]
+      y<-sort(y)
+      ady<-sort(y,decreasing=TRUE)
+      n<-NROW(y)
+      i<-seq(1:n)
+      AD<--n-(1/n)*sum((2*i-1)*(log(pPLD(y,alpha2,beta2))+log(1-pPLD(ady,alpha2,
+                                                                     beta2))))
+      return(AD)
+    }
+    adex<-try(stats::optim(c(alpha1,beta1),QADx,x=x),silent=TRUE)
+    adey<-try(stats::optim(c(alpha2,beta2),QADy,y=y),silent=TRUE)
+    if (is.character(adex)|is.character(adey)) {
+    stop("Optimization did not converge.Please check your initial parameters.")
+    } else {
+      alpha1 <- adex$par[1]
+      beta1 <- adex$par[2]
+      alpha2 <- adey$par[1]
+      beta2 <- adey$par[2]
+    }
+    if (empirical==TRUE) {
+      r<-seq(0.00001,1,0.00001)
+      roc<-1-pPLD(qPLD(r,alpha1,beta1),alpha2,beta2)
+      plot(1-r,roc,type="l", lty=2, lwd=2,ylim = c(0,1),xlim= c(0,1),
+           ylab = "Sensitivity",xlab = "1-Specificity",col=1,main="ROC Graph")
+      graphics::lines(c(0,1),c(0,1))
+      oldpar <- graphics::par(new = TRUE)
+      on.exit(graphics::par(oldpar))
+      Fn<- stats::ecdf(y)
+      roc2<- 1-Fn(stats::quantile(x,r))
+      plot(1-r,roc2,type="l",lwd=2,ylim = c(0,1),xlim= c(0,1),
+           ylab = "Sensitivity",xlab = "1-Specificity",col=1,main="ROC Graph")
+      graphics::legend('bottomright',inset=0.05,
+                       c("Empirical ROC Curve","Fitted ROC Curve"),
+                       lty=c(1,2),lwd = c(2,2),col=c(1,1))
+    } else if (empirical==FALSE) {
+      r<-seq(0.00001,1,0.00001)
+      roc<-1-pPLD(qPLD(r,alpha1,beta1),alpha2,beta2)
+      plot(1-r,roc,type="l", lty=2, lwd=2,ylim = c(0,1),xlim= c(0,1),
+           ylab = "Sensitivity",xlab = "1-Specificity",col=1,main="ROC Graph")
+      graphics::lines(c(0,1),c(0,1))
+      graphics::legend('bottomright',inset=0.05,
+                       c("Fitted ROC Curve"),lty=c(2),lwd = c(2),col=c(1))
+    }
+  }
+  else if (method=="CvM") {
+    QCVx<-function(par,x){
+      alpha1<-par[1]
+      beta1<-par[2]
+      x<-sort(x)
+      n<-NROW(x)
+      i<-seq(1:n)
+      CV<-1/(12*n)+sum((pPLD(x,alpha1,beta1)-(i-0.5)/n)^2)
+      return(CV)
+    }
+    QCVy<-function(par,y){
+      alpha2<-par[1]
+      beta2<-par[2]
+      y<-sort(y)
+      n<-NROW(y)
+      i<-seq(1:n)
+      CV<-1/(12*n)+sum((pPLD(y,alpha2,beta2)-(i-0.5)/n)^2)
+      return(CV)
+    }
+    cvx<-try(stats::optim(c(alpha1,beta1),QCVx,x=x),silent=TRUE)
+    cvy<-try(stats::optim(c(alpha2,beta2),QCVy,y=y),silent=TRUE)
+    if (is.character(cvx)|is.character(cvy)) {
+     stop("Optimization did not converge.Please check your initial parameters.")
+    } else {
+      alpha1 <- cvx$par[1]
+      beta1 <- cvx$par[2]
+      alpha2 <- cvy$par[1]
+      beta2 <- cvy$par[2]
+    }
+    if (empirical==TRUE) {
+      r<-seq(0.00001,1,0.00001)
+      roc<-1-pPLD(qPLD(r,alpha1,beta1),alpha2,beta2)
+      plot(1-r,roc,type="l", lty=2, lwd=2,ylim = c(0,1),xlim= c(0,1),
+           ylab = "Sensitivity",xlab = "1-Specificity",col=1,main="ROC Graph")
+      graphics::lines(c(0,1),c(0,1))
+      oldpar <- graphics::par(new = TRUE)
+      on.exit(graphics::par(oldpar))
+      Fn<- stats::ecdf(y)
+      roc2<- 1-Fn(stats::quantile(x,r))
+      plot(1-r,roc2,type="l",lwd=2,ylim = c(0,1),xlim= c(0,1),
+           ylab = "Sensitivity",xlab = "1-Specificity",col=1,main="ROC Graph")
+      graphics::legend('bottomright',inset=0.05,
+                       c("Empirical ROC Curve","Fitted ROC Curve"),
+                       lty=c(1,2),lwd = c(2,2),col=c(1,1))
+    } else if (empirical==FALSE) {
+      r<-seq(0.00001,1,0.00001)
+      roc<-1-pPLD(qPLD(r,alpha1,beta1),alpha2,beta2)
+      plot(1-r,roc,type="l", lty=2, lwd=2,ylim = c(0,1),xlim= c(0,1),
+           ylab = "Sensitivity",xlab = "1-Specificity",col=1,main="ROC Graph")
+      graphics::lines(c(0,1),c(0,1))
+      graphics::legend('bottomright',inset=0.05,
+                       c("Fitted ROC Curve"),lty=c(2),lwd = c(2),col=c(1))
+    }
+  }
+  else if (method=="LSE") {
+    QLSEx<-function(par,x){
+      alpha1<-par[1]
+      beta1<-par[2]
+      x<-sort(x)
+      n<-NROW(x)
+      i<-seq(1:n)
+      Q<-sum((pPLD(x,alpha1,beta1)-i/(n+1))^2)
+      return(Q)
+    }
+    QLSEy<-function(par,y){
+      alpha2<-par[1]
+      beta2<-par[2]
+      y<-sort(y)
+      n<-NROW(y)
+      i<-seq(1:n)
+      Q<-sum((pPLD(y,alpha2,beta2)-i/(n+1))^2)
+      return(Q)
+    }
+    lsex<-try(stats::optim(c(alpha1,beta1),QLSEx,x=x),silent=TRUE)
+    lsey<-try(stats::optim(c(alpha2,beta2),QLSEy,y=y),silent=TRUE)
+    if (is.character(lsex)|is.character(lsey)) {
+    stop("Optimization did not converge.Please check your initial parameters.")
+    } else {
+      alpha1 <- lsex$par[1]
+      beta1 <- lsex$par[2]
+      alpha2 <- lsey$par[1]
+      beta2 <- lsey$par[2]
+    }
+    if (empirical==TRUE) {
+      r<-seq(0.00001,1,0.00001)
+      roc<-1-pPLD(qPLD(r,alpha1,beta1),alpha2,beta2)
+      plot(1-r,roc,type="l", lty=2, lwd=2,ylim = c(0,1),xlim= c(0,1),
+           ylab = "Sensitivity",xlab = "1-Specificity",col=1,main="ROC Graph")
+      graphics::lines(c(0,1),c(0,1))
+      oldpar <- graphics::par(new = TRUE)
+      on.exit(graphics::par(oldpar))
+      Fn<- stats::ecdf(y)
+      roc2<- 1-Fn(stats::quantile(x,r))
+      plot(1-r,roc2,type="l",lwd=2,ylim = c(0,1),xlim= c(0,1),
+           ylab = "Sensitivity",xlab = "1-Specificity",col=1,main="ROC Graph")
+      graphics::legend('bottomright',inset=0.05,
+                       c("Empirical ROC Curve","Fitted ROC Curve"),
+                       lty=c(1,2),lwd = c(2,2),col=c(1,1))
+    } else if (empirical==FALSE) {
+      r<-seq(0.00001,1,0.00001)
+      roc<-1-pPLD(qPLD(r,alpha1,beta1),alpha2,beta2)
+      plot(1-r,roc,type="l", lty=2, lwd=2,ylim = c(0,1),xlim= c(0,1),
+           ylab = "Sensitivity",xlab = "1-Specificity",col=1,main="ROC Graph")
+      graphics::lines(c(0,1),c(0,1))
+      graphics::legend('bottomright',inset=0.05,c("Fitted ROC Curve"),
+                       lty=c(2),lwd = c(2),col=c(1))
+    }
+  }
+  else if (method=="WLSE") {
+    QWLSEx<-function(par,x){
+      alpha1<-par[1]
+      beta1<-par[2]
+      x<-sort(x)
+      n<-NROW(x)
+      i<-seq(1:n)
+      QW<-sum(((n+1)^2*(n+2)/(i*(n-i+1)))*(pPLD(x,alpha1,beta1)-i/(n+1))^2)
+      return(QW)
+    }
+    QWLSEy<-function(par,y){
+      alpha2<-par[1]
+      beta2<-par[2]
+      y<-sort(y)
+      n<-NROW(y)
+      i<-seq(1:n)
+      QW<-sum(((n+1)^2*(n+2)/(i*(n-i+1)))*(pPLD(y,alpha2,beta2)-i/(n+1))^2)
+      return(QW)
+    }
+    wlsex<-try(stats::optim(c(alpha1,beta1),QWLSEx,x=x),silent=TRUE)
+    wlsey<-try(stats::optim(c(alpha2,beta2),QWLSEy,y=y),silent=TRUE)
+    if (is.character(wlsex)|is.character(wlsey)) {
+    stop("Optimization did not converge.Please check your initial parameters.")
+    } else {
+      alpha1 <- wlsex$par[1]
+      beta1 <- wlsex$par[2]
+      alpha2 <- wlsey$par[1]
+      beta2 <- wlsey$par[2]
+    }
+    if (empirical==TRUE) {
+      r<-seq(0.00001,1,0.00001)
+      roc<-1-pPLD(qPLD(r,alpha1,beta1),alpha2,beta2)
+      plot(1-r,roc,type="l", lty=2, lwd=2,ylim = c(0,1),xlim= c(0,1),
+           ylab = "Sensitivity",xlab = "1-Specificity",col=1,main="ROC Graph")
+      graphics::lines(c(0,1),c(0,1))
+      oldpar <- graphics::par(new = TRUE)
+      on.exit(graphics::par(oldpar))
+      Fn<- stats::ecdf(y)
+      roc2<- 1-Fn(stats::quantile(x,r))
+      plot(1-r,roc2,type="l",lwd=2,ylim = c(0,1),xlim= c(0,1),
+           ylab = "Sensitivity",xlab = "1-Specificity",col=1,main="ROC Graph")
+      graphics::legend('bottomright',inset=0.05,
+                       c("Empirical ROC Curve","Fitted ROC Curve"),
+                       lty=c(1,2),lwd = c(2,2),col=c(1,1))
+    } else if (empirical==FALSE) {
+      r<-seq(0.00001,1,0.00001)
+      roc<-1-pPLD(qPLD(r,alpha1,beta1),alpha2,beta2)
+      plot(1-r,roc,type="l", lty=2, lwd=2,ylim = c(0,1),xlim= c(0,1),
+           ylab = "Sensitivity",xlab = "1-Specificity",col=1,main="ROC Graph")
+      graphics::lines(c(0,1),c(0,1))
+      graphics::legend('bottomright',inset=0.05,
+                       c("Fitted ROC Curve"),lty=c(2),lwd = c(2),col=c(1))
+    }
+  }
+  else if (method=="TRUE") {
+    x<-NULL
+    y<-NULL
+    init_param <- NULL
+    empirical<-NULL
+    alpha1<-true_param[[1]]
+    beta1<-true_param[[2]]
+    alpha2<-true_param[[3]]
+    beta2<-true_param[[4]]
 if(any(alpha1<=0)) {stop(paste("alpha1 value must be greather than 0","\n",""))}
 if(any(beta1<=0)) {stop(paste("beta1 value must be greather than 0","\n",""))}
 if(any(alpha2<=0)) {stop(paste("alpha2 value must be greather than 0","\n",""))}
 if(any(beta2<=0)) {stop(paste("beta2 value must be greather than 0","\n",""))}
-  cz<- function(c) {
-    a<- (1-pPLD(c,alpha2,beta2))*(pPLD(c,alpha1,beta1))
-    return(-a)
-  }
-  CZ<-stats::optim(init,cz,method="L-BFGS-B",lower = -Inf,upper = Inf)
-  CZ$par
-  -CZ$value
-  return(CZ)
-}
-#' Receiver Operating Characteristic for Power Lindley Distribution
-#' @export
-#' @rdname PLindleyROC
-#' @return \code{plIU} gives the Index of Union  for Power
-#' Lindley Distribution. The Index of Union is a way of summarising
-#' the performance of a diagnostic test.
-#' @examples
-#' \donttest{plIU(alpha1=2,beta1=5,alpha2=6,beta2=1,init=0)}
-plIU<- function(alpha1,beta1,alpha2,beta2,init=0)
-{
-if(any(alpha1<=0)) {stop(paste("alpha1 value must be greather than 0","\n",""))}
-if(any(beta1<=0)) {stop(paste("beta1 value must be greather than 0","\n",""))}
-if(any(alpha2<=0)) {stop(paste("alpha2 value must be greather than 0","\n",""))}
-if(any(beta2<=0)) {stop(paste("beta2 value must be greather than 0","\n",""))}
-  iu<- function(c) {
-    a<- (base::abs((1-pPLD(c,alpha2,beta2))-plAUC(alpha1,beta1,alpha2,beta2))
-         +base::abs((pPLD(c,alpha1,beta1))-plAUC(alpha1,beta1,alpha2,beta2)))
-    return(a)
-  }
-  IU<-stats::optim(init,iu,method="L-BFGS-B",lower = -Inf,upper = Inf)
-  IU$par
-  -IU$value
-  return(IU)
-}
-#' Receiver Operating Characteristic for Power Lindley Distribution
-#' @export
-#' @rdname PLindleyROC
-#' @return \code{plNI} gives the New Index for Power Lindley Distribution.
-#' @examples
-#' \donttest{plNI(alpha1=2,beta1=5,alpha2=6,beta2=1,init=0.5)}
-plNI<- function(alpha1,beta1,alpha2,beta2,init=0)
-{
-if(any(alpha1<=0)) {stop(paste("alpha1 value must be greather than 0","\n",""))}
-if(any(beta1<=0)) {stop(paste("beta1 value must be greather than 0","\n",""))}
-if(any(alpha2<=0)) {stop(paste("alpha2 value must be greather than 0","\n",""))}
-if(any(beta2<=0)) {stop(paste("beta2 value must be greather than 0","\n",""))}
-  ni<- function(c) {
-    ni<-(((1-pPLD(c,alpha1,beta1))*(1-(1-pPLD(c,alpha2,beta2)))
-          *pPLD(c,alpha1,beta1)*(1-pPLD(c,alpha2,beta2)))+(pPLD(c,alpha1,beta1)
-          *(1-(1-pPLD(c,alpha2,beta2)))*(1-pPLD(c,alpha1,beta1))
-          *(1-pPLD(c,alpha2,beta2))))
-    return(-ni)
-  }
-  NI<-stats::optim(init,ni,method="L-BFGS-B",lower = -Inf,upper = Inf)
-  NI$par
-  -NI$value
-  return(NI)
-}
-#' Receiver Operating Characteristic for Power Lindley Distribution
-#' @export
-#' @rdname PLindleyROC
-#' @return \code{plROC} gives the ROC graph for Power Lindley Distribution.
-#' The ROC graph is given by 1-specificity versus sensitivity.
-#' @examples
-#' \donttest{x=c(1,2,3,4)}
-#' \donttest{y=c(2,3,4)}
-#' \donttest{plROC(x,y,alpha1=2,beta1=5,alpha2=6,beta2=1,empirical=FALSE)}
-plROC<- function(x,y,alpha1,beta1,alpha2,beta2,empirical=TRUE)
-{
-if(any(alpha1<=0)) {stop(paste("alpha1 value must be greather than 0","\n",""))}
-if(any(beta1<=0)) {stop(paste("beta1 value must be greather than 0","\n",""))}
-if(any(alpha2<=0)) {stop(paste("alpha2 value must be greather than 0","\n",""))}
-if(any(beta2<=0)) {stop(paste("beta2 value must be greather than 0","\n",""))}
-  if (empirical==TRUE) {
-  r<-seq(0.00001,1,0.00001)
-  roc<-1-pPLD(qPLD(r,alpha1,beta1),alpha2,beta2)
-  plot(1-r,roc,type="l", lty=2, lwd=2,ylim = c(0,1),xlim= c(0,1),
-       ylab = "Sensitivity",xlab = "1-Specificity",col=1,main="ROC Graph")
-  graphics::lines(c(0,1),c(0,1))
-  oldpar <- graphics::par(new = TRUE)
-  on.exit(graphics::par(oldpar))
-  Fn<- stats::ecdf(y)
-  roc2<- 1-Fn(stats::quantile(x,r))
-  plot(1-r,roc2,type="l",lwd=2,ylim = c(0,1),xlim= c(0,1),
-       ylab = "Sensitivity",xlab = "1-Specificity",col=1,main="ROC Graph")
-  graphics::legend('bottomright',inset=0.05,c("Empirical ROC Curve",
-                        "Fitted ROC Curve"),lty=c(1,2),lwd = c(2,2),col=c(1,1))
-  } else if (empirical==FALSE) {
     r<-seq(0.00001,1,0.00001)
     roc<-1-pPLD(qPLD(r,alpha1,beta1),alpha2,beta2)
     plot(1-r,roc,type="l", lty=2, lwd=2,ylim = c(0,1),xlim= c(0,1),
          ylab = "Sensitivity",xlab = "1-Specificity",col=1,main="ROC Graph")
     graphics::lines(c(0,1),c(0,1))
-    graphics::legend('bottomright',inset=0.05,c("Fitted ROC Curve"),
-                     lty=c(2),lwd = c(2),col=c(1))
+    graphics::legend('bottomright',inset=0.05,
+                     c("Fitted ROC Curve"),lty=c(2),lwd = c(2),col=c(1))
   }
-}
-#' Receiver Operating Characteristic for Power Lindley Distribution
-#' @export
-#' @rdname PLindleyROC
-#' @return \code{prfROC} gives sensitivity,specificity and 1-specificity
-#' for Power Lindley Distribution.
-#' @examples
-#' prfROC(ctp=0.5,alpha1=2,beta1=5,alpha2=6,beta2=1)
-prfROC<- function(ctp=0,alpha1,beta1,alpha2,beta2)
-{
-if(any(alpha1<=0)) {stop(paste("alpha1 value must be greather than 0","\n",""))}
-if(any(beta1<=0)) {stop(paste("beta1 value must be greather than 0","\n",""))}
-if(any(alpha2<=0)) {stop(paste("alpha2 value must be greather than 0","\n",""))}
-if(any(beta2<=0)) {stop(paste("beta2 value must be greather than 0","\n",""))}
-  sen<-1-pPLD(ctp,alpha2,beta2)
-  sp<-pPLD(ctp,alpha1,beta1)
-  SP<-1-sp
-  return(c("Sensitivitiy"=sen,"Specificity"=sp,"1-Specificity"=SP))
 }

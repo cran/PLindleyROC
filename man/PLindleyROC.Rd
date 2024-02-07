@@ -6,15 +6,10 @@
 \alias{pPLD}
 \alias{qPLD}
 \alias{rPLD}
-\alias{plAUC}
-\alias{plJ}
-\alias{plER}
-\alias{plCZ}
-\alias{plIU}
-\alias{plNI}
-\alias{plROC}
-\alias{prfROC}
-\title{Receiver Operating Characteristic for Power Lindley Distribution}
+\alias{r.pl_auc}
+\alias{r.pl_index}
+\alias{r.pl_graph}
+\title{Receiver Operating Characteristic based on Power Lindley Distribution}
 \usage{
 dPLD(x, alpha, beta)
 
@@ -24,21 +19,31 @@ qPLD(p, alpha, beta)
 
 rPLD(n, alpha, beta)
 
-plAUC(alpha1, beta1, alpha2, beta2)
+r.pl_auc(
+  x,
+  y,
+  init_param = c(alpha1 = 1, beta1 = 1, alpha2 = 1, beta2 = 1),
+  true_param = c(alpha1 = 1, beta1 = 1, alpha2 = 1, beta2 = 1),
+  method = c("MLE", "AD", "CvM", "LSE", "WLSE", "TRUE")
+)
 
-plJ(alpha1, beta1, alpha2, beta2, init = 0)
+r.pl_index(
+  x,
+  y,
+  init_param = c(alpha1 = 1, beta1 = 1, alpha2 = 1, beta2 = 1),
+  init_index = 1,
+  true_param = c(alpha1 = 1, beta1 = 1, alpha2 = 1, beta2 = 1),
+  method = c("MLE", "AD", "CvM", "LSE", "WLSE", "TRUE")
+)
 
-plER(alpha1, beta1, alpha2, beta2, init = 0)
-
-plCZ(alpha1, beta1, alpha2, beta2, init = 0)
-
-plIU(alpha1, beta1, alpha2, beta2, init = 0)
-
-plNI(alpha1, beta1, alpha2, beta2, init = 0)
-
-plROC(x, y, alpha1, beta1, alpha2, beta2, empirical = TRUE)
-
-prfROC(ctp = 0, alpha1, beta1, alpha2, beta2)
+r.pl_graph(
+  x,
+  y,
+  init_param = c(alpha1 = 1, beta1 = 1, alpha2 = 1, beta2 = 1),
+  true_param = c(alpha1 = 1, beta1 = 1, alpha2 = 1, beta2 = 1),
+  empirical = TRUE,
+  method = c("MLE", "AD", "CvM", "LSE", "WLSE", "TRUE")
+)
 }
 \arguments{
 \item{x, y}{vector of quantiles.}
@@ -52,19 +57,23 @@ prfROC(ctp = 0, alpha1, beta1, alpha2, beta2)
 \item{n}{number of observations. If \code{length(n) > 1}, the length is taken
 to be the number required.}
 
-\item{alpha1}{shape parameter of first sample.}
+\item{init_param}{initial paremeter values for the estimation method.}
 
-\item{beta1}{scale parameter of first sample.}
+\item{true_param}{true parameter values.}
 
-\item{alpha2}{shape parameter of second sample.}
+\item{method}{estimation method. The default value for the method is "MLE".}
 
-\item{beta2}{scale parameter of second sample.}
-
-\item{init}{initial value for the optimization calculation.}
+\item{init_index}{initial index value for the optimization calculation.}
 
 \item{empirical}{empirical must be TRUE or FALSE.}
 
-\item{ctp}{cut-off point value.}
+\item{alpha1}{shape parameter of distribution of first sample.}
+
+\item{beta1}{scale parameter of distribution of first sample.}
+
+\item{alpha2}{shape parameter of distribution of second sample.}
+
+\item{beta2}{scale parameter of distribution of second sample.}
 }
 \value{
 \code{dPLD} gives the probability density function of Power
@@ -78,123 +87,70 @@ Power Lindley Distribution.
 
 \code{rPLD} gives random numbers from Power Lindley Distribution.
 
-\code{plAUC} gives area under curve of Power
-Lindley Distribution. Area under the ROC curve is obtained.
+\code{r.pl_auc} gives the Area Under the Curve (AUC) when the data
+conforms to the Power Lindley Distribution.
 
-\code{plJ} gives Youden's index for Power Lindley Distribution.
-Youden's J statistics is a way of summarising the performance of a
-diagnostic test.
+\code{r.pl_index} gives index values when the data conforms to the
+Power Lindley Distribution.
 
-\code{plER} gives the Closest to (0,1) Criteria (ER)
-for Power Lindley Distribution. The Closest to (0,1) Criteria (ER)
-is a way of summarising the performance of a diagnostic test.
-
-\code{plCZ} gives the Concordance Probability Method
-for Power Lindley Distribution. The Concordance Probability Method
-is a way of summarising the performance of a diagnostic test.
-
-\code{plIU} gives the Index of Union  for Power
-Lindley Distribution. The Index of Union is a way of summarising
-the performance of a diagnostic test.
-
-\code{plNI} gives the New Index for Power Lindley Distribution.
-
-\code{plROC} gives the ROC graph for Power Lindley Distribution.
-The ROC graph is given by 1-specificity versus sensitivity.
-
-\code{prfROC} gives sensitivity,specificity and 1-specificity
-for Power Lindley Distribution.
+\code{r.pl_graph} gives the ROC curve when the data conforms to the
+Power Lindley Distribution.
 }
 \description{
-Receiver operating characteristic (ROC) analysis is carried out
-from the Power Lindley distribution. Specificity, sensitivity, area under the
-curve, and ROC curve are evaluated.
+ROC curve analysis is performed assuming samples are from the
+Power Lindley distribution. Specificity, sensitivity, area under the curve
+and ROC curve are provided.
 }
 \details{
 The probability density function (PDF) and cumulative distribution function
 (CDF) are as follows:
-\deqn{f\left( x\right) =\frac{\alpha \beta ^{2}}{\beta +1}\left( 1+x^{\alpha}
+\deqn{f\left( x;\boldsymbol{\theta }\right) =\frac{\alpha \beta ^{2}}{
+\beta +1}\left( 1+x^{\alpha}
 \right) x^{\alpha -1}\exp \left( -\beta x^{\alpha }\right)}
-\deqn{=zg_{1}\left( t\right) +\left( 1-z\right) g_{2}\left( t\right)}
+\deqn{=zg_{1}\left( t\right) +\left( 1-z\right) g_{2}\left( t\right),}
 
-\deqn{F\left( x\right) =P\left( X\leq x\right) =1-\left( 1+zx^{\alpha }
+\deqn{F\left( x;\boldsymbol{\theta }\right) =P\left( X\leq x\right) =1-
+\left( 1+zx^{\alpha }
 \right)
-\exp \left( -\beta x^{\alpha }\right)}
-and quantile function is given by,
-\deqn{Q\left( u\right) =F^{-1}\left( u\right) =\left\{ -\frac{W\left( \left(
+\exp \left( -\beta x^{\alpha }\right),}
+and quantile function is given by
+\deqn{Q\left( u;\boldsymbol{\theta }\right) =F^{-1}\left( u;
+\boldsymbol{\theta }\right) =\left\{ -\frac{W\left( \left(
 1+\beta \right) \left( -1+u\right) \exp \left( -\left( 1+\beta \right)
                                               \right) \right) +1+\beta }
-                                       {\beta }\right\} ^{\frac{1}{\alpha }}}
-,where
-\deqn{z =\frac{\beta }{\beta +1}}
+                                     {\beta }\right\} ^{\frac{1}{\alpha }},}
+where
+\deqn{z =\frac{\beta }{\beta +1},}
 \deqn{g_{1}\left( x\right)  =\alpha \beta x^{\alpha -1}\exp \left( -\beta
-x^{\alpha }\right)}
+x^{\alpha }\right),}
 \deqn{g_{2}\left( x\right)  =\alpha \beta ^{2}x^{2\alpha -1}\exp \left(-\beta
-x^{\alpha }\right)}
-\eqn{\alpha>0} is a shape parameter, \eqn{\beta>0} is a scale parameter,
-\eqn{0<u<1} and \eqn{W} is Lambert W function.
+x^{\alpha }\right),}
+\eqn{\boldsymbol{\theta =}\left( \alpha ,\beta \right) }, \eqn{0<u<1},
+\eqn{\alpha>0} is a shape parameter, \eqn{\beta>0} is a scale parameter and
+W(•) is Lambert W function.
 
-Let \eqn{c} be the cut-off point, \eqn{X_{1}\sim PL\left( \alpha_{1},
-\beta_{1}\right) }
-and \eqn{X_{2}\sim PL\left( \alpha_{2},\beta_{2}\right) } with
-\eqn{\alpha_{2}>\alpha_{1}}.
-\eqn{F_{1}} and \eqn{F_{2}} are the cumulative distribution functions related
-to \eqn{X_{1}} and \eqn{X_{2}}, respectively.
-In that case, the 1-specificity (False Positive Rate,FPR) and sensitivity
-(True Positive Rate,TPR) are given by,
-\deqn{FPR =P\left( X_{1}>c\right) =1-P\left( X_{1}\leq c\right) =1-F_{1}
-\left(c\right)}
-\deqn{TPR =1-F_{2}\left( Q_{1}\left( 1-FPR\right) \right)}
-and Receiver Operating Characteristic (ROC) curve can be expressed
-as follows:
-\deqn{ROC =\left\{\left(r,( 1-F_{2}\left( Q_{1}\left(
-1-r; \boldsymbol{\theta }\right) \right),
-r\in \left( 0,1\right) \right)\right\}},
-where \eqn{\boldsymbol{\theta }=\left( \alpha _{1},\alpha _{2},
-\beta _{1},\beta_{2}\right)}.
+Additionally, the estimation methods Anderson-Darling "AD", Cramér-von Mises
+"CvM", least squares "LS" and weighted least squares "WLS" as well as the
+"TRUE" option for the true value, are available. Please note that the default
+value for the method parameter is maximum likelihood "ML" estimation.
 
-Performance assesments for the ROC analysis are as follows:
-\deqn{AUC =\int\limits_{0}^{1}ROCdr}
-\deqn{J\left( c\right)  =\underset{c}{\arg \max }
-\left\{ \left( 1-F_{2}\left( c\right)
-\right) +F_{1}\left( c\right) -1\right\}}
-\deqn{ER\left( c\right)  = \underset{c}{\arg \min }
- \left\{ \sqrt{\left( 1-F_{1}\left( c\right) \right)
-^{2}+\left( F_{2}\left( c\right) \right) ^{2}} \right\}}
-\deqn{CZ\left( c\right)  = \underset{c}{\arg \max }
-\left\{ \left( 1-F_{2}\left( c\right) \right) \times F_{1}\left(
-c\right)  \right\}}
-\deqn{IU\left( c\right)  =\left\{ \left\vert \left( 1-F_{2}\left( c\right)
--AUC\right) \right\vert +\left\vert F_{1}\left( c\right) -AUC\right\vert
-\right\}}
-\deqn{NI\left( c\right)  =\underset{c}{\arg \max }\left\{ \left( \left(
-1-F_{1}\left( c\right) \right) \times F_{2}\left( c\right) \times
-F_{1}\left( c\right) \times \left( 1-F_{2}\left( c\right) \right) \right)
-\right.   \nonumber \\
-\left. +\left( F_{1}\left( c\right) \times F_{2}\left( c\right) \times
-                \left( 1-F_{1}\left( c\right) \right) \times
-                \left( 1-F_{2}\left( c\right)
-                                                   \right) \right) \right\}}
-,where AUC is area under the ROC curve, J is Youden's J index, ER is the
-closest to
-\eqn{\left( 0,1\right)} criteria, CZ is the concordance probability method,
-IU is index of Union and NI is new index.
+The cut-off point values corresponding to Youden's J index (J), the criterion
+closest to (0, 1) (ER), the concordance probability method (CZ), and the newly
+proposed Ertan-Coskun index (EC) are provided.
 }
 \examples{
 dPLD(c(1,2,3,4,5,200),alpha=3,beta=2)
 pPLD(c(.5,1,2,3,4),alpha=3,beta=2)
 qPLD(c(.9971,0.5,0.3),alpha=3,beta=2)
 rPLD(10,alpha=3,beta=2)
-\donttest{plAUC(alpha1=2,beta1=5,alpha2=6,beta2=1)}
-plJ(alpha1=2,beta1=5,alpha2=6,beta2=1,init=0)
-plER(alpha1=2,beta1=5,alpha2=6,beta2=1,init=0)
-plCZ(alpha1=2,beta1=5,alpha2=6,beta2=1,init=0)
-\donttest{plIU(alpha1=2,beta1=5,alpha2=6,beta2=1,init=0)}
-\donttest{plNI(alpha1=2,beta1=5,alpha2=6,beta2=1,init=0.5)}
-\donttest{x=c(1,2,3,4)}
-\donttest{y=c(2,3,4)}
-\donttest{plROC(x,y,alpha1=2,beta1=5,alpha2=6,beta2=1,empirical=FALSE)}
-prfROC(ctp=0.5,alpha1=2,beta1=5,alpha2=6,beta2=1)
+r.pl_auc(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),
+true_param=c(alpha1=1,beta1=1,alpha2=1,beta2=1),method=c("TRUE"))
+r.pl_index(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),init_param=c(1,1,1,1),
+init_index=1,method=c("MLE"))
+\donttest{x=c(1,2,2,3,1)}
+\donttest{y=c(1,3,2,4,2,3)}
+\donttest{r.pl_graph(x,y,init_param=c(1,1,1,1),
+empirical=TRUE,method=c("MLE"))}
 }
 \references{
 Akgenç, E., and Kuş, C., 2023,
