@@ -1,12 +1,12 @@
-b500d7bfa950d3315ff7555624629f4f *DESCRIPTION
+a0792dae31a51889517ad2726c665c49 *DESCRIPTION
 b292242f0b3c438861b6ec85298e0b3e *NAMESPACE
 009723bc4bea126428790bcd14a7be7d *NEWS.md
 6a6273e4b497f5bce1909b6bd7543736 *R/PLindleyROC.R
-f869b60679bc6f3a4f6c1e636dedceae *README.md
-b7950e6729255305099efb9375552d66 *build/vignette.rds
+7ff4a98edff8ceca5f0b231c39036bb4 *README.md
+69b5706c75f24bd3beed25dcfa7e42ae *build/vignette.rds
 c03d6c963a5e9b889153d2eb055e0f23 *inst/doc/PLindleyROC.R
 db034f379c26b9d95cf87fc9ff692241 *inst/doc/PLindleyROC.Rmd
-d885131588c6513757c89acd9f929150 *inst/doc/PLindleyROC.html
+99fefe9c8fc6b90ed1383b088b85165a *inst/doc/PLindleyROC.html
 f17fed63452a3eedaea1f4aa6a4ad6fb *man/PLindleyROC.Rd
 c554e5d866d4d45c8836b07bfc8c9c43 *man/figures/PLindleyROC.png
 15c63e30d5c80a92fae3265c6d94a8bb *man/figures/README-pressure-1.png
@@ -14,6 +14,6 @@ c554e5d866d4d45c8836b07bfc8c9c43 *man/figures/PLindleyROC.png
 08b4a62cf67a50cef577aadc0f1db9b5 *man/figures/a2.png
 13d48cbbaae3295ce302a43d8e5cd147 *man/figures/logo.png
 50a267b4e80faa71c237cd5e37b0830c *tests/testthat.R
-c3486da28da0ad9d9e78976ba5bb9431 *tests/testthat/Rplots.pdf
-1d675e2982de9334d87d2559ebd13acd *tests/testthat/test_function.R
+1c5cae626aa22114680cfc6ea7eb5d81 *tests/testthat/Rplots.pdf
+b64ba947471f57f29aeb82ca92223863 *tests/testthat/test_function.R
 db034f379c26b9d95cf87fc9ff692241 *vignettes/PLindleyROC.Rmd

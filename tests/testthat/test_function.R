@@ -1,4 +1,6 @@
 library(testthat)        # load testthat package
+library(vctrs)           #load vctrs package
+library(tibble)          #load tibble package
 library(PLindleyROC)            # load our package
 # Test whether the output is a list
 test_that("functions returns a list", {
@@ -122,48 +124,51 @@ test_that("functions returns a list with the specified length", {
 })
 # Test whether the output is a vector with the expected size
 test_that("functions returns a  vector with the expected size", {
-  expect_vector(qPLD(p=c(.1,.7,.5,.9,.4),alpha=2,beta=5), ptype = double(),
+expect_vector(qPLD(p=c(.1,.7,.5,.9,.4),alpha=2,beta=5), ptype = double(),
                 size = 5)
-  expect_vector(dPLD(x=c(1,2,3,4,5),alpha=2,beta=5), ptype = double(), size = 5)
-  expect_vector(pPLD(x=c(1,2,3,4,5),alpha=2,beta=5), ptype = double(), size = 5)
-  expect_vector(rPLD(n=c(1,2,3,4,5),alpha=2,beta=5), ptype = double(), size = 5)
-  expect_vector(r.pl_auc(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),
+expect_vector(dPLD(x=c(1,2,3,4,5),alpha=2,beta=5), ptype = double(),
+                       size = 5)
+expect_vector(pPLD(x=c(1,2,3,4,5),alpha=2,beta=5), ptype = double(),
+                       size = 5)
+expect_vector(rPLD(n=c(1,2,3,4,5),alpha=2,beta=5), ptype = double(),
+                       size = 5)
+expect_vector(r.pl_auc(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),
                       init_param=c(alpha1=1,beta1=1,alpha2=1,beta2=1),
                       method=c("MLE")), ptype = double(),
                 size = 1)
-  expect_vector(r.pl_auc(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),
+expect_vector(r.pl_auc(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),
                       init_param=c(alpha1=1,beta1=1,alpha2=1,beta2=1),
                       method=c("AD")), ptype = double(),
                 size = 1)
-  expect_vector(r.pl_auc(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),
+expect_vector(r.pl_auc(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),
                       init_param=c(alpha1=1,beta1=1,alpha2=1,beta2=1),
                       method=c("CvM")), ptype = double(),
                 size = 1)
-  expect_vector(r.pl_auc(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),
+expect_vector(r.pl_auc(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),
                       init_param=c(alpha1=1,beta1=1,alpha2=1,beta2=1),
                       method=c("LSE")), ptype = double(),
                 size = 1)
-  expect_vector(r.pl_auc(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),
+expect_vector(r.pl_auc(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),
                       init_param=c(alpha1=1,beta1=1,alpha2=1,beta2=1),
                       method=c("WLSE")), ptype = double(),
                 size = 1)
-  expect_vector(r.pl_index(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),
+expect_vector(r.pl_index(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),
                     init_param=c(alpha1=1,beta1=1,alpha2=1,beta2=1),
                     init_index=1,method=c("MLE")), ptype = cbind(),
                 size = 4)
-  expect_vector(r.pl_index(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),
+expect_vector(r.pl_index(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),
                     init_param=c(alpha1=1,beta1=1,alpha2=1,beta2=1),
                     init_index=1,method=c("AD")), ptype = cbind(),
                 size = 4)
-  expect_vector(r.pl_index(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),
+expect_vector(r.pl_index(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),
                     init_param=c(alpha1=1,beta1=1,alpha2=1,beta2=1),
                     init_index=1,method=c("CvM")), ptype = cbind(),
                 size = 4)
-  expect_vector(r.pl_index(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),
+expect_vector(r.pl_index(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),
                     init_param=c(alpha1=1,beta1=1,alpha2=1,beta2=1),
                     init_index=1,method=c("LSE")), ptype = cbind(),
                 size = 4)
-  expect_vector(r.pl_index(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),
+expect_vector(r.pl_index(x=c(1,2,2,3,1),y=c(1,3,2,4,2,3),
                     init_param=c(alpha1=1,beta1=1,alpha2=1,beta2=1),
                     init_index=1,method=c("WLSE")), ptype = cbind(),
                 size = 4)
